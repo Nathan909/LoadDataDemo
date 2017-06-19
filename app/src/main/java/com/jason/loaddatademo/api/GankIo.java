@@ -15,5 +15,5 @@ import rx.Observable;
  */
 public interface GankIo {
     @GET("福利/{pageSize}/{currentPage}")
-    Observable<List<WelfareEntity>> getWelfareImg(@Path("pageSize") int pageSize,@Path("currentPage") int currentPage);
+    Observable<List<WelfareEntity>> getWelfareImg(@Path("pageSize") int pageSize, @Path("currentPage") int currentPage);
 }

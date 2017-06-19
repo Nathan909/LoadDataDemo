@@ -27,6 +27,20 @@ public class BasePagingActivity<T> extends AppCompatActivity implements SwipeRef
     private int currentPage;
     private int lastPage;
 
+    protected void startGetData(RecyclerView recyclerView, SwipeRefreshLayout swipeRefreshLayout, BaseQuickAdapter quickAdapter, IPagingService<List<T>> pagingService) {
+        mPagingService = pagingService;
+        setRecyclerView(recyclerView);
+        setSwipeRefreshLayout(swipeRefreshLayout);
+        setQuickAdapter(quickAdapter);
+        onLoadFirstData();
+    }
+
+    private void setRecyclerView(RecyclerView recyclerView) {
+        mRecyclerView = recyclerView;
+        if (mRecyclerView.getLayoutManager() == null)
+            mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+    }
+
     private void setSwipeRefreshLayout(SwipeRefreshLayout swipeRefreshLayout) {
         if (swipeRefreshLayout != null) {
             mSwipeRefreshLayout = swipeRefreshLayout;
@@ -37,12 +51,6 @@ public class BasePagingActivity<T> extends AppCompatActivity implements SwipeRef
         } else {
             throw new NullPointerException("swipeRefreshLayout is null");
         }
-    }
-
-    private void setRecyclerView(RecyclerView recyclerView) {
-        mRecyclerView = recyclerView;
-        if (mRecyclerView.getLayoutManager() == null)
-            mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
 
     private void setQuickAdapter(BaseQuickAdapter quickAdapter) {
@@ -57,12 +65,29 @@ public class BasePagingActivity<T> extends AppCompatActivity implements SwipeRef
         }
     }
 
-    protected void startGetData(RecyclerView recyclerView, SwipeRefreshLayout swipeRefreshLayout, BaseQuickAdapter quickAdapter, IPagingService<List<T>> pagingService) {
-        mPagingService = pagingService;
-        setRecyclerView(recyclerView);
-        setSwipeRefreshLayout(swipeRefreshLayout);
-        setQuickAdapter(quickAdapter);
-        onLoadFirstData();
+    public void onLoadFirstData() {
+        lastPage = currentPage = 1;
+        mSwipeRefreshLayout.setRefreshing(true);
+        mPagingService.getData(currentPage, PAGE_SIZE, new Observer<List<T>>() {
+            @Override
+            public void onCompleted() {
+                Toast.makeText(BasePagingActivity.this, "加载完成", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Toast.makeText(BasePagingActivity.this, "加载失败", Toast.LENGTH_SHORT).show();
+                mSwipeRefreshLayout.setRefreshing(false);
+            }
+
+            @Override
+            public void onNext(List<T> list) {
+                if (list == null) return;
+                mQuickAdapter.addData(list);
+                mQuickAdapter.notifyDataSetChanged();
+                mSwipeRefreshLayout.setRefreshing(false);
+            }
+        });
     }
 
     @Override
@@ -121,31 +146,6 @@ public class BasePagingActivity<T> extends AppCompatActivity implements SwipeRef
                     mQuickAdapter.addData(list);
                 }
                 lastPage = currentPage;
-            }
-        });
-    }
-
-    public void onLoadFirstData() {
-        lastPage = currentPage = 1;
-        mSwipeRefreshLayout.setRefreshing(true);
-        mPagingService.getData(currentPage, PAGE_SIZE, new Observer<List<T>>() {
-            @Override
-            public void onCompleted() {
-                Toast.makeText(BasePagingActivity.this, "加载完成", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onError(Throwable e) {
-                Toast.makeText(BasePagingActivity.this, "加载失败", Toast.LENGTH_SHORT).show();
-                mSwipeRefreshLayout.setRefreshing(false);
-            }
-
-            @Override
-            public void onNext(List<T> list) {
-                if (list == null) return;
-                mQuickAdapter.addData(list);
-                mQuickAdapter.notifyDataSetChanged();
-                mSwipeRefreshLayout.setRefreshing(false);
             }
         });
     }

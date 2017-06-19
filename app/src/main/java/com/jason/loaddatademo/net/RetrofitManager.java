@@ -25,33 +25,32 @@ public class RetrofitManager {
     }
 
     public static RetrofitManager getInstance() {//单例模式——双重检查锁定
-        if (mRetrofitManager == null)
+        if (null == mRetrofitManager)
             synchronized (RetrofitManager.class) {
-                if (mRetrofitManager == null)
+                if (null == mRetrofitManager)
                     mRetrofitManager = new RetrofitManager();
             }
         return mRetrofitManager;
     }
 
     private void initRetrofit() {
-        HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
-        interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+        HttpLoggingInterceptor httpLoggingInterceptor = new HttpLoggingInterceptor();
+        httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
 
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
-        if (AppConfig.DEBUG)
-            builder.addInterceptor(interceptor);
+        if (AppConfig.DEBUG) builder.addInterceptor(httpLoggingInterceptor);
         builder.addInterceptor(new RspCheckInterceptor());
         builder.connectTimeout(15, TimeUnit.SECONDS);
         builder.readTimeout(20, TimeUnit.SECONDS);
         builder.writeTimeout(20, TimeUnit.SECONDS);
         builder.retryOnConnectionFailure(true);
-        OkHttpClient client = builder.build();
+        OkHttpClient okHttpClient = builder.build();
 
         mRetrofit = new Retrofit.Builder()//引入Retrofit网请框架
                 .baseUrl(AppConfig.BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())//引入Gson网析框架，增加返回值为Gson的支持(以实体类返回)
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())//引入RxJava响编框架，增加返回值为Oservable<T>的支持
-                .client(client)//引入OkHttp网请框架
+                .client(okHttpClient)//引入OkHttp网请框架
                 .build();
     }
 

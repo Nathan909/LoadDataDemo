@@ -48,7 +48,7 @@ public class InterceptorUtils {
 
     public static Response changeRspData(Response response, String rspData) {
         MediaType contentType = response.body().contentType();
-        ResponseBody body = ResponseBody.create(contentType,rspData);
+        ResponseBody body = ResponseBody.create(contentType, rspData);
         return response.newBuilder().body(body).build();
     }
 }

@@ -16,6 +16,13 @@ import rx.schedulers.Schedulers;
  * @date 2016/9/18
  */
 public class WelfareServer implements IPagingService<List<WelfareEntity>> {
+    /**
+     * 为框架加载数据
+     *
+     * @param page     加载第几页
+     * @param limit    1页加载多少条
+     * @param observer
+     */
     @Override
     public void getData(int page, int limit, Observer<List<WelfareEntity>> observer) {
         RetrofitManager retrofitManager = RetrofitManager.getInstance();

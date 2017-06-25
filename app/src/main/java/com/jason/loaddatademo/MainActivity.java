@@ -19,11 +19,13 @@ public class MainActivity extends BasePagingActivity<WelfareEntity> {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //框架部分
         setContentView(R.layout.activity_main);
-
         SwipeRefreshLayout mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.refresh_layout);
         RecyclerView mRecyclerView = (RecyclerView) findViewById(R.id.list);
-        startGetData(mRecyclerView, mSwipeRefreshLayout, new BaseQuickAdapter<WelfareEntity>(R.layout.item_welfare,new ArrayList()){
+
+        //数据部分
+        startGetData(mRecyclerView, mSwipeRefreshLayout, new BaseQuickAdapter<WelfareEntity>(R.layout.item_welfare, new ArrayList()) {
             @Override
             protected void convert(BaseViewHolder baseViewHolder, WelfareEntity welfareEntity) {
                 Glide.with(MainActivity.this)//引入Glide图载框架
@@ -31,7 +33,6 @@ public class MainActivity extends BasePagingActivity<WelfareEntity> {
                         .placeholder(R.mipmap.load_image_bg)
                         .into((ImageView) baseViewHolder.getView(R.id.iv));
             }
-        },new WelfareServer());
-
+        }, new WelfareServer());
     }
 }

@@ -40,10 +40,10 @@ public class RetrofitManager {
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
         if (AppConfig.DEBUG) builder.addInterceptor(httpLoggingInterceptor);
         builder.addInterceptor(new RspCheckInterceptor());
-        builder.connectTimeout(15, TimeUnit.SECONDS);
-        builder.readTimeout(20, TimeUnit.SECONDS);
-        builder.writeTimeout(20, TimeUnit.SECONDS);
-        builder.retryOnConnectionFailure(true);
+        builder.connectTimeout(15, TimeUnit.SECONDS)
+                .readTimeout(20, TimeUnit.SECONDS)
+                .writeTimeout(20, TimeUnit.SECONDS)
+                .retryOnConnectionFailure(true);
         OkHttpClient okHttpClient = builder.build();
 
         mRetrofit = new Retrofit.Builder()//引入Retrofit网请框架

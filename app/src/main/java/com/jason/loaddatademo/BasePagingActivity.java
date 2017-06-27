@@ -38,7 +38,7 @@ public class BasePagingActivity<T> extends AppCompatActivity implements SwipeRef
     private void setRecyclerView(RecyclerView recyclerView) {
         mRecyclerView = recyclerView;
         if (mRecyclerView.getLayoutManager() == null)
-            mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+            mRecyclerView.setLayoutManager(new LinearLayoutManager(this));// 配置线性布局管理器
     }
 
     private void setSwipeRefreshLayout(SwipeRefreshLayout swipeRefreshLayout) {

@@ -19,6 +19,9 @@ import rx.Observer;
  * @date 2016/9/18
  */
 public class BasePagingActivity<T> extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener, BaseQuickAdapter.RequestLoadMoreListener {
+    private static boolean DEBUG = true;
+    private static String LOG = "txxz";
+
     private static final int PAGE_SIZE = 20;
     private RecyclerView mRecyclerView;
     private BaseQuickAdapter mQuickAdapter;
@@ -44,9 +47,16 @@ public class BasePagingActivity<T> extends AppCompatActivity implements SwipeRef
     private void setSwipeRefreshLayout(SwipeRefreshLayout swipeRefreshLayout) {
         if (swipeRefreshLayout != null) {
             mSwipeRefreshLayout = swipeRefreshLayout;
-            mSwipeRefreshLayout.setProgressBackgroundColorSchemeResource(android.R.color.white);
+            // 刷新球动画参数（是否缩放出现，启停位置，中间下拉最深位置）
+            exLog("BasePaingActivity.setSwipeRefreshLayout()--end=" + TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 24, getResources().getDisplayMetrics()));
             mSwipeRefreshLayout.setProgressViewOffset(false, 0, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 24, getResources().getDisplayMetrics()));
-            mSwipeRefreshLayout.setColorSchemeResources(android.R.color.holo_blue_light, android.R.color.holo_red_light, android.R.color.holo_orange_light, android.R.color.holo_green_light);
+            mSwipeRefreshLayout.setProgressBackgroundColorSchemeResource(android.R.color.white);// 刷新球背景色
+            // 刷新球动画颜色
+            mSwipeRefreshLayout.setColorSchemeResources(
+                    android.R.color.holo_blue_light,
+                    android.R.color.holo_red_light,
+                    android.R.color.holo_orange_light,
+                    android.R.color.holo_green_light);
             mSwipeRefreshLayout.setOnRefreshListener(this);
         } else {
             throw new NullPointerException("swipeRefreshLayout is null");
@@ -56,12 +66,12 @@ public class BasePagingActivity<T> extends AppCompatActivity implements SwipeRef
     private void setQuickAdapter(BaseQuickAdapter quickAdapter) {
         if (quickAdapter != null) {
             mQuickAdapter = quickAdapter;
-            mQuickAdapter.openLoadAnimation();
+            mQuickAdapter.openLoadAnimation();// 开启custom动画
             mQuickAdapter.openLoadMore(PAGE_SIZE);
             mQuickAdapter.setOnLoadMoreListener(this);
             mRecyclerView.setAdapter(mQuickAdapter);
         } else {
-            throw new NullPointerException("swipeRefreshLayout not null");
+            throw new NullPointerException("quickAdapter is null");
         }
     }
 
@@ -71,17 +81,20 @@ public class BasePagingActivity<T> extends AppCompatActivity implements SwipeRef
         mPagingService.getData(currentPage, PAGE_SIZE, new Observer<List<T>>() {
             @Override
             public void onCompleted() {
-                Toast.makeText(BasePagingActivity.this, "加载完成", Toast.LENGTH_SHORT).show();
+                exLog("BasePaingActivity.onLoadFirstData()--onCompleted()");
+                toastText("加载完成");
             }
 
             @Override
             public void onError(Throwable e) {
-                Toast.makeText(BasePagingActivity.this, "加载失败", Toast.LENGTH_SHORT).show();
+                exLog("BasePaingActivity.onLoadFirstData()--onError()");
+                toastText("加载失败");
                 mSwipeRefreshLayout.setRefreshing(false);
             }
 
             @Override
             public void onNext(List<T> list) {
+                exLog("BasePaingActivity.onLoadFirstData()--onNext()");
                 if (list == null) return;
                 mQuickAdapter.addData(list);
                 mQuickAdapter.notifyDataSetChanged();
@@ -96,12 +109,12 @@ public class BasePagingActivity<T> extends AppCompatActivity implements SwipeRef
         mPagingService.getData(currentPage, PAGE_SIZE, new Observer<List<T>>() {
             @Override
             public void onCompleted() {
-                Toast.makeText(BasePagingActivity.this, "刷新成功", Toast.LENGTH_SHORT).show();
+                toastText("刷新成功");
             }
 
             @Override
             public void onError(Throwable e) {
-                Toast.makeText(BasePagingActivity.this, "刷新失败", Toast.LENGTH_SHORT).show();
+                toastText("刷新失败");
                 mSwipeRefreshLayout.setRefreshing(false);
                 currentPage = lastPage;
             }
@@ -127,19 +140,19 @@ public class BasePagingActivity<T> extends AppCompatActivity implements SwipeRef
         mPagingService.getData(currentPage, PAGE_SIZE, new Observer<List<T>>() {
             @Override
             public void onCompleted() {
-                Toast.makeText(BasePagingActivity.this, "加载完成", Toast.LENGTH_SHORT).show();
+                toastText("加载完成");
             }
 
             @Override
             public void onError(Throwable e) {
-                Toast.makeText(BasePagingActivity.this, "加载失败", Toast.LENGTH_SHORT).show();
+                toastText("加载失败");
                 currentPage = lastPage;
             }
 
             @Override
             public void onNext(List<T> list) {
                 if ((list != null && list.isEmpty())) {
-                    Toast.makeText(BasePagingActivity.this, "没有更多数据了", Toast.LENGTH_SHORT).show();
+                    toastText("没有更多数据了");
                     mQuickAdapter.addData(list);
                     mQuickAdapter.loadComplete();
                 } else {
@@ -148,5 +161,14 @@ public class BasePagingActivity<T> extends AppCompatActivity implements SwipeRef
                 lastPage = currentPage;
             }
         });
+    }
+
+    private void toastText(String str) {
+        Toast.makeText(BasePagingActivity.this, str, Toast.LENGTH_SHORT).show();
+    }
+
+    private void exLog(String str) {
+        if (DEBUG)
+            android.util.Log.d(LOG, str);
     }
 }
